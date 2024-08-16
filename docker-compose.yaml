@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  nextjs-app:
+    build: .
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+
+# Build and start the container: docker-compose up -d
+# Stop the container: docker-compose down
