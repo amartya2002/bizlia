@@ -1,0 +1,38 @@
+name: Build and Push Docker Image to ACR
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    env:
+      ACR_ENDPOINT: bizlia.azurecr.io
+      ACR_USERNAME: bizlia
+      ACR_PASSWORD: 1voE2nRb3NfUC0ihHj/8rpfuUcX0m8KpwRZoklYzYq+ACRCrKNaM
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to ACR
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.ACR_ENDPOINT }}
+          username: ${{ env.ACR_USERNAME }}
+          password: ${{ env.ACR_PASSWORD }}
+
+      - name: Build, tag, and push Docker image to ACR
+        env:
+          ACR_REPOSITORY: bizlia
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "Pruning Docker system..."
+          docker system prune -af --volumes
+          echo "Building Docker image..."
+          docker build -t ${{ env.ACR_ENDPOINT }}/${{ env.ACR_REPOSITORY }}:${{ env.IMAGE_TAG }} . --network=host
+          echo "Pushing Docker image..."
+          docker push ${{ env.ACR_ENDPOINT }}/${{ env.ACR_REPOSITORY }}:${{ env.IMAGE_TAG }}
